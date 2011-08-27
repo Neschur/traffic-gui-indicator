@@ -1,0 +1,8 @@
+$ cat .gitignore
+*~
+*.depend
+*.layout
+pkg/
+.obj/
+bin/
+notes.txt
