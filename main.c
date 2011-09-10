@@ -4,13 +4,19 @@
 
 GtkWidget *window;
 gboolean visibl=FALSE;
+char *interface;
 
 char *GetTraffState()
 {
     char *res=(char *)malloc(sizeof(char)*100);
     memset(res,0,100);
     FILE *fr;
-    fr=popen("ifconfig ppp0 |grep bytes","r");
+    char *pn=(char *)malloc(sizeof(char)*100);
+    strcpy(pn,"ifconfig ");
+    strcat(pn,interface);
+    strcat(pn," |grep bytes");
+    fr=popen(pn,"r");
+    free(pn);
     if(fr==NULL){strcpy(res,"Error");return NULL;}
     char tmp[512];
     fgets(tmp,sizeof(tmp),fr);
@@ -125,23 +131,33 @@ void gui( int argc, char *argv[])
 int main( int argc, char *argv[])
 {
     gboolean o=FALSE;
+    interface=(char *)malloc(sizeof(char)*16);
+    strcpy(interface,"eth0");
     if(argc>1)
     {
-        if((strcmp(argv[1],"--auto")==0)||(strcmp(argv[1],"-a")==0)){
-            visibl=TRUE;
-            o=TRUE;
-        }
-        if((strcmp(argv[1],"--version")==0)||(strcmp(argv[1],"-v")==0)){
-            printf("traffic gui indicator 1.0.0\n");
-            return 1;
-        }
-        if((strcmp(argv[1],"--help")==0)||(strcmp(argv[1],"-h")==0)){
-            printf("simple gui traffic indicator\n"
-                    "--version(-v) - Print version\n"
-                    "--help(-h) - Print this help\n"
-                    "--auto(-a) - for autorun\n"
-                   );
-            return 1;
+        int i;
+        for(i=0;i<argc;i++){
+            if((strcmp(argv[i],"--auto")==0)||(strcmp(argv[i],"-a")==0)){
+                visibl=TRUE;
+                o=TRUE;
+            }
+            if((strcmp(argv[i],"--interface")==0)||(strcmp(argv[i],"-i")==0)){
+                strcpy(interface,argv[i+1]);
+                o=TRUE;
+            }
+            if((strcmp(argv[i],"--version")==0)||(strcmp(argv[i],"-v")==0)){
+                printf("traffic gui indicator 1.0.1\n");
+                return 1;
+            }
+            if((strcmp(argv[i],"--help")==0)||(strcmp(argv[i],"-h")==0)){
+                printf("simple gui traffic indicator\n"
+                        "--version(-v) - Print version\n"
+                        "--help(-h) - Print this help\n"
+                        "--auto(-a) - for autorun\n"
+                        "--interface(-i) - interface(eth0, wlan0, ppp0, etc)"
+                    );
+                return 1;
+            }
         }
         if(!o){
             printf("unknown\n");
